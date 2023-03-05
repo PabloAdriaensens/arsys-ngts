@@ -184,7 +184,11 @@ class TransportService
     {
         $section = [];
         foreach ($path as $element) {
-            $section[] = 'origin: '.$element["Origin"].", destination: ".$element["Destination"].", cost: ".$element["Cost"];
+            $section[] = [
+                "origin" => $element["Origin"],
+                "destination" => $element["Destination"],
+                "cost" => $element["Cost"],
+            ];
         }
 
         $cost = "total_cost: $totalCost";
