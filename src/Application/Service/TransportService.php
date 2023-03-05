@@ -11,8 +11,8 @@ class TransportService
      */
     public function getRouteData(string $origin, $destination): array
     {
-        $cities = TransportDataService::$cities;
-        $connections = TransportDataService::$connections;
+        $cities = TransportDataService::CITIES;
+        $connections = TransportDataService::CONNECTIONS;
 
         $validatedData = $this->validateData([$origin, $destination]);
         if (!empty($validatedData)) {
@@ -46,8 +46,8 @@ class TransportService
             if ($key === 1 && empty($value)) {
                 continue;
             }
-            if (!in_array($value, TransportDataService::$cities, true)) {
-                return [$value.' is not a valid city', 400];
+            if (!in_array($value, TransportDataService::CITIES, true)) {
+                return [$value.' is not a valid city', TransportDataService::HTTP_BAD_REQUEST];
             }
         }
 
