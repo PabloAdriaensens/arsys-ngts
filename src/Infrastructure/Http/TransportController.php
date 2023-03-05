@@ -12,31 +12,26 @@ use Symfony\Component\Routing\Annotation\Route;
 class TransportController extends AbstractController
 {
     /**
-     * @var JsonResponseFactory
-     */
-    private JsonResponseFactory $jsonResponseFactory;
-
-    public function __construct()
-    {
-        $this->jsonResponseFactory = new JsonResponseFactory();
-    }
-
-    /**
      * @Route("/transport", name="app_transport")
      * @param Request $request
      * @return Response
      */
     public function index(Request $request): Response
     {
-        $routeData = (new TransportService())->getRouteData(
-            $request->query->get('origin'),
-            $request->query->get('destination')
-        );
+        $from = $request->query->get('origin');
+        $to = $request->query->get('destination') ?? '';
 
-        if (count($routeData) > 1) {
-            return $this->jsonResponseFactory->error($routeData[0], (int)$routeData[1]);
+        if (empty($from)) {
+            return (new JsonResponseFactory())->error('Add a valid city for the origin', 400);
         }
 
-        return $this->jsonResponseFactory->success($routeData);
+        $routeData = (new TransportService())->getRouteData($from, $to);
+
+        if (count($routeData) > 2) {
+            return (new JsonResponseFactory())->success($routeData);
+        }
+
+        [$errorMessage, $errorCode] = $routeData;
+        return (new JsonResponseFactory())->error($errorMessage, $errorCode);
     }
 }
