@@ -191,10 +191,12 @@ class TransportService
             ];
         }
 
-        $cost = "total_cost: $totalCost";
-
-        return array($section, $cost);
+        return [
+            "route" => $section,
+            "total_cost" => $totalCost
+        ];
     }
+
 
     /**
      * @param array $cities

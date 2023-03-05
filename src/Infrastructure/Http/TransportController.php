@@ -37,7 +37,7 @@ class TransportController extends AbstractController
 
         $routeData = $this->transportService->getRouteData($from, $to);
 
-        if (!is_string($routeData[0])) {
+        if (isset($routeData['route'], $routeData['total_cost']) || is_array($routeData[0])) {
             return $this->jsonResponseFactory->success($routeData);
         }
 
