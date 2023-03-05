@@ -6,26 +6,33 @@ class TransportService
 {
     /**
      * @param string $origin
-     * @param string $destination
+     * @param $destination
      * @return array
      */
-    public function getRouteData(string $origin, string $destination): array
+    public function getRouteData(string $origin, $destination): array
     {
-        $data = [$origin, $destination];
-        $validateData = $this->validateData($data);
+        $cities = TransportDataService::$cities;
+        $connections = TransportDataService::$connections;
 
-        if (empty($validateData)) {
-            [$path, $totalCost] = $this->getCostCalculated(
-                TransportDataService::$cities,
-                TransportDataService::$connections,
-                $origin,
-                $destination
-            );
-
-            return $this->formatResponse($origin, $destination, $path, $totalCost);
+        $validatedData = $this->validateData([$origin, $destination]);
+        if (!empty($validatedData)) {
+            return $validatedData;
         }
 
-        return $validateData;
+        $destination = empty($destination) ? $this->getOriginConnections($origin, $cities, $connections) : $destination;
+
+        if (is_array($destination)) {
+            $routeData = ["Since there is no destination indicated, given the origin $origin, the routes for the connected cities are:"];
+            foreach ($destination as $dest) {
+                [$path, $totalCost] = $this->getCostCalculated($cities, $connections, $origin, $dest);
+                $routeData[] = $this->formatResponse($origin, $dest, $path, $totalCost);
+            }
+        } else {
+            [$path, $totalCost] = $this->getCostCalculated($cities, $connections, $origin, $destination);
+            $routeData = $this->formatResponse($origin, $destination, $path, $totalCost);
+        }
+
+        return $routeData;
     }
 
     /**
@@ -51,10 +58,10 @@ class TransportService
      * @param array $cities
      * @param array $connections
      * @param string $origin
-     * @param string $destination
+     * @param $destination
      * @return array
      */
-    public function getCostCalculated(array $cities, array $connections, string $origin, string $destination): array
+    public function getCostCalculated(array $cities, array $connections, string $origin, $destination): array
     {
         $combinations = $this->getCombinations($cities, $origin);
         $combinations = $this->getValidCombinationsForDestination($combinations, $destination);
@@ -94,10 +101,10 @@ class TransportService
 
     /**
      * @param array $combinations
-     * @param string $destination
+     * @param $destination
      * @return array
      */
-    public function getValidCombinationsForDestination(array $combinations, string $destination): array
+    public function getValidCombinationsForDestination(array $combinations, $destination): array
     {
         $validCombinations = [];
 
@@ -186,5 +193,26 @@ class TransportService
         $cost = "With a total cost of: $totalCost";
 
         return array($route, $section, $cost);
+    }
+
+    /**
+     * @param string $origin
+     * @param array $cities
+     * @param array $connections
+     * @return array
+     */
+    public function getOriginConnections(string $origin, array $cities, array $connections): array
+    {
+        $originPosition = array_search($origin, $cities, true);
+
+        $originConnections = [];
+        foreach ($connections[$originPosition] as $costIndex => $cost) {
+            if ($cost !== 0) {
+                $destinationCity = $cities[$costIndex];
+                $originConnections[] = $destinationCity;
+            }
+        }
+
+        return $originConnections;
     }
 }
