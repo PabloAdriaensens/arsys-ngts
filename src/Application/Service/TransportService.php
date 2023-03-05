@@ -2,6 +2,8 @@
 
 namespace App\Application\Service;
 
+use Symfony\Component\HttpFoundation\Response;
+
 class TransportService
 {
     /**
@@ -22,14 +24,13 @@ class TransportService
         $destination = empty($destination) ? $this->getRemainingCities($cities, $origin) : $destination;
 
         if (is_array($destination)) {
-            $routeData = ["Since there is no destination indicated, given the origin $origin, the routes for the connected cities are:"];
             foreach ($destination as $dest) {
                 [$path, $totalCost] = $this->getCostCalculated($cities, $connections, $origin, $dest);
-                $routeData[] = $this->formatResponse($origin, $dest, $path, $totalCost);
+                $routeData[] = $this->formatResponse($path, $totalCost);
             }
         } else {
             [$path, $totalCost] = $this->getCostCalculated($cities, $connections, $origin, $destination);
-            $routeData = $this->formatResponse($origin, $destination, $path, $totalCost);
+            $routeData = $this->formatResponse($path, $totalCost);
         }
 
         return $routeData;
@@ -47,7 +48,7 @@ class TransportService
                 continue;
             }
             if (!in_array($value, TransportDataService::CITIES, true)) {
-                return [$value.' is not a valid city', TransportDataService::HTTP_BAD_REQUEST];
+                return [$value.' is not a valid city', Response::HTTP_BAD_REQUEST];
             }
         }
 
@@ -175,24 +176,20 @@ class TransportService
     }
 
     /**
-     * @param string $origin
-     * @param string $destination
      * @param array $path
      * @param int $totalCost
      * @return array
      */
-    public function formatResponse(string $origin, string $destination, array $path, int $totalCost): array
+    public function formatResponse(array $path, int $totalCost): array
     {
-        $route = "The cheapest route for a shipment between $origin and $destination is:";
-
         $section = [];
         foreach ($path as $element) {
-            $section[] = $element["Origin"]." - ".$element["Destination"]." section, with a cost of: ".$element["Cost"];
+            $section[] = 'origin: '.$element["Origin"].", destination: ".$element["Destination"].", cost: ".$element["Cost"];
         }
 
-        $cost = "With a total cost of: $totalCost";
+        $cost = "total_cost: $totalCost";
 
-        return array($route, $section, $cost);
+        return array($section, $cost);
     }
 
     /**

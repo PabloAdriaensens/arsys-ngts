@@ -2,6 +2,7 @@
 
 use App\Application\Service\TransportService;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Response;
 
 class TransportServiceTest extends TestCase
 {
@@ -19,7 +20,7 @@ class TransportServiceTest extends TestCase
     public function testValidateDataReturnsErrorForInvalidCity(): void
     {
         $data = [self::INVALID_CITY, "Logroño"];
-        $expectedResult = [self::INVALID_CITY.' is not a valid city', 400];
+        $expectedResult = [self::INVALID_CITY.' is not a valid city', Response::HTTP_BAD_REQUEST];
 
         $this->assertSame($expectedResult, $this->apiService->validateData($data));
 
@@ -43,10 +44,10 @@ class TransportServiceTest extends TestCase
     public function testGetRouteDataReturnsErrorForInvalidData(): void
     {
         $result = $this->apiService->getRouteData('Logroño', self::INVALID_CITY);
-        $this->assertSame([self::INVALID_CITY.' is not a valid city', 400], $result);
+        $this->assertSame([self::INVALID_CITY.' is not a valid city', Response::HTTP_BAD_REQUEST], $result);
 
         $result = $this->apiService->getRouteData(self::INVALID_CITY, 'Logroño');
-        $this->assertSame([self::INVALID_CITY.' is not a valid city', 400], $result);
+        $this->assertSame([self::INVALID_CITY.' is not a valid city', Response::HTTP_BAD_REQUEST], $result);
     }
 
     /**

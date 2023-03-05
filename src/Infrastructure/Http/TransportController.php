@@ -22,12 +22,12 @@ class TransportController extends AbstractController
         $to = $request->query->get('destination') ?? '';
 
         if (empty($from)) {
-            return (new JsonResponseFactory())->error('Add a valid city for the origin', 400);
+            return (new JsonResponseFactory())->error('Add a valid city for the origin', Response::HTTP_BAD_REQUEST);
         }
 
         $routeData = (new TransportService())->getRouteData($from, $to);
 
-        if (count($routeData) > 2) {
+        if (!is_string($routeData[0])) {
             return (new JsonResponseFactory())->success($routeData);
         }
 

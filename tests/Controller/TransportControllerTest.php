@@ -2,14 +2,12 @@
 
 namespace App\Tests\Infrastructure\Http;
 
-use App\Application\Service\TransportDataService;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
 
 class TransportControllerTest extends WebTestCase
 {
     private $client;
-    private const HTTP_OK = 200;
-    private const HTTP_BAD_REQUEST = 400;
 
     public function setUp(): void
     {
@@ -23,7 +21,7 @@ class TransportControllerTest extends WebTestCase
     {
         $this->client->request('GET', '/transport', ['origin' => 'Logroño']);
         $response = $this->client->getResponse();
-        $this->assertSame(TransportDataService::HTTP_OK, $response->getStatusCode());
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     /**
@@ -33,7 +31,7 @@ class TransportControllerTest extends WebTestCase
     {
         $this->client->request('GET', '/transport');
         $response = $this->client->getResponse();
-        $this->assertSame(TransportDataService::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
     /**
@@ -43,8 +41,8 @@ class TransportControllerTest extends WebTestCase
     {
         $this->client->request('GET', '/transport', ['origin' => 'Logroño']);
         $response = $this->client->getResponse();
-        $this->assertSame(TransportDataService::HTTP_OK, $response->getStatusCode());
-        $this->assertSame('application/json', $response->headers->get('Content-Type'));
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertSame('application/json; charset=utf-8', $response->headers->get('Content-Type'));
         $this->assertJson($response->getContent());
     }
 }

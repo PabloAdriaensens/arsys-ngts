@@ -19,7 +19,4 @@ class TransportDataService
         [0, 0, 0, 0, 8, 0, 0, 0, 4],
         [0, 0, 0, 0, 0, 7, 6, 4, 0],
     ];
-
-    public const HTTP_OK = 200;
-    public const HTTP_BAD_REQUEST = 400;
 }
