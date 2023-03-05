@@ -19,7 +19,7 @@ class TransportService
             return $validatedData;
         }
 
-        $destination = empty($destination) ? $this->getOriginConnections($origin, $cities, $connections) : $destination;
+        $destination = empty($destination) ? $this->getRemainingCities($cities, $origin) : $destination;
 
         if (is_array($destination)) {
             $routeData = ["Since there is no destination indicated, given the origin $origin, the routes for the connected cities are:"];
@@ -76,7 +76,7 @@ class TransportService
      */
     public function getCombinations(array $cities, string $origin = ""): array
     {
-        $remainingCities = array_diff($cities, [$origin]);
+        $remainingCities = $this->getRemainingCities($cities, $origin);
 
         if (count($remainingCities) <= 1) {
             return $remainingCities;
@@ -196,23 +196,12 @@ class TransportService
     }
 
     /**
-     * @param string $origin
      * @param array $cities
-     * @param array $connections
+     * @param string $origin
      * @return array
      */
-    public function getOriginConnections(string $origin, array $cities, array $connections): array
+    public function getRemainingCities(array $cities, string $origin): array
     {
-        $originPosition = array_search($origin, $cities, true);
-
-        $originConnections = [];
-        foreach ($connections[$originPosition] as $costIndex => $cost) {
-            if ($cost !== 0) {
-                $destinationCity = $cities[$costIndex];
-                $originConnections[] = $destinationCity;
-            }
-        }
-
-        return $originConnections;
+        return array_diff($cities, [$origin]);
     }
 }
